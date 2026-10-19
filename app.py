@@ -6,8 +6,7 @@ st.set_page_config(page_title="Jarvis")
 st.title("Barbe-Quasar")
 
 
-# Historique affiché, propre à la session du navigateur :
-# il survit aux reruns mais repart à zéro si on recharge la page
+# Historique affiché, propre à la session du navigateur
 if "messages" not in st.session_state:
 	st.session_state.messages = []
 
