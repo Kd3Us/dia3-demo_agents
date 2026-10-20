@@ -54,7 +54,17 @@ class ConversationAgent:
         ]
 
 
+    def remove_old_images(self):
+        for message in self.conversation_history:
+            if isinstance(message["content"], list):
+                texts = [part["text"] for part in message["content"] if part["type"] == "text"]
+                message["content"] = "\n".join(texts) + "\n[image envoyée précédemment]"
+
+
     def ask_llm(self, text_interaction, image_file=None):
+
+        if image_file is not None:
+            self.remove_old_images()
 
         user_content = self.build_user_content(text_interaction, image_file)
         self.update_conversation_history(role="user", content=user_content)
