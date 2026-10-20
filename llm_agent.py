@@ -49,6 +49,17 @@ class ConversationAgent:
         self.update_conversation_history(role="assistant", content=response)
 
 
+    def transcribe_audio(self, audio_file):
+        transcription = self.groq_client.audio.transcriptions.create(
+            file=(audio_file.name, audio_file.read()),
+            model="whisper-large-v3",
+            temperature=0,
+            response_format="verbose_json",
+        )
+
+        return transcription.text
+
+
 
 
 
