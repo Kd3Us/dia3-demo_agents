@@ -58,37 +58,3 @@ class ConversationAgent:
         )
 
         return transcription.text
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-if __name__ == "__main__":
-    question = input("Pose ta question :\n")
-    response = ask_llm(question)
-    print("\n")
-    print(response)
