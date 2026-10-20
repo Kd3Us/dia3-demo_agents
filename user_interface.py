@@ -23,14 +23,22 @@ class UserInterface:
 				st.markdown(message["content"])
 
 
+	def get_text_interaction(self, user_input):
+		if user_input.audio:
+			return self.conversation_agent_object.transcribe_audio(user_input.audio)
+
+		return user_input.text
+
+
 	def run(self):
-		text_interaction = st.chat_input(
+		user_input = st.chat_input(
 			"Que veux tu moussaillon ?",
 			accept_file=False,
-			accept_audio=False
+			accept_audio=True
 			)
 
-		if text_interaction :
+		if user_input :
+			text_interaction = self.get_text_interaction(user_input)
 			self.conversation_agent_object.ask_llm(text_interaction)
 			self.show_discussion_history()
 
