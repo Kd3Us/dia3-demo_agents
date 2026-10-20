@@ -61,13 +61,16 @@ class ConversationAgent:
                 message["content"] = "\n".join(texts) + "\n[image envoyée précédemment]"
 
 
-    def ask_llm(self, text_interaction, image_file=None):
-
+    def add_user_message(self, text_interaction, image_file=None):
         if image_file is not None:
             self.remove_old_images()
 
         user_content = self.build_user_content(text_interaction, image_file)
         self.update_conversation_history(role="user", content=user_content)
+
+
+    def ask_llm(self, text_interaction, image_file=None):
+        self.add_user_message(text_interaction, image_file)
 
         response = self.groq_client.chat.completions.create(
             messages=self.conversation_history,
@@ -76,6 +79,31 @@ class ConversationAgent:
             max_tokens=600,
         ).choices[0].message.content
 
+
+        self.update_conversation_history(role="assistant", content=response)
+
+
+    def ask_llm_stream(self, text_interaction, image_file=None):
+        self.add_user_message(text_interaction, image_file)
+
+        stream = self.groq_client.chat.completions.create(
+            messages=self.conversation_history,
+            model="qwen/qwen3.8-27b",
+            reasoning_effort="none",
+            max_tokens=600,
+            stream=True,
+        )
+
+        return self.read_stream(stream)
+
+
+    def read_stream(self, stream):
+        response = ""
+        for chunk in stream:
+            content = chunk.choices[0].delta.content
+            if content:
+                response += content
+                yield content
 
         self.update_conversation_history(role="assistant", content=response)
 
