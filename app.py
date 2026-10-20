@@ -1,5 +1,13 @@
 import streamlit as st
-from llm_agent import ask_llm
+from llm_agent import LLMAgent
+
+
+@st.cache_resource
+def get_agent():
+	return LLMAgent(context_path="./context.txt")
+
+
+agent = get_agent()
 
 
 st.set_page_config(page_title="Jarvis")
@@ -18,7 +26,7 @@ user_input = st.chat_input(
 	)
 
 if user_input :
-	response = ask_llm(user_input)
+	response = agent.ask(user_input)
 	st.session_state.messages.append({"role": "user", "content": user_input})
 	st.session_state.messages.append({"role": "assistant", "content": response})
 
