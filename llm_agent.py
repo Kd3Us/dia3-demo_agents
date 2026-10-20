@@ -2,6 +2,8 @@ from groq import Groq
 
 from dotenv import load_dotenv
 import os
+import base64
+import mimetypes
 
 
 class ConversationAgent:
@@ -35,14 +37,33 @@ class ConversationAgent:
         )
 
 
-    def ask_llm(self, text_interaction):
+    @staticmethod
+    def build_user_content(text_interaction, image_file):
+        if image_file is None:
+            return text_interaction
 
-        self.update_conversation_history(role="user", content=text_interaction)
+        image_type = mimetypes.guess_type(image_file.name)[0]
+        base64_image = base64.b64encode(image_file.read()).decode("utf-8")
+
+        return [
+            {"type": "text", "text": text_interaction},
+            {
+                "type": "image_url",
+                "image_url": {"url": f"data:{image_type};base64,{base64_image}"},
+            },
+        ]
+
+
+    def ask_llm(self, text_interaction, image_file=None):
+
+        user_content = self.build_user_content(text_interaction, image_file)
+        self.update_conversation_history(role="user", content=user_content)
 
         response = self.groq_client.chat.completions.create(
             messages=self.conversation_history,
-            model="openai/gpt-oss-120b",
-            include_reasoning=False,
+            model="qwen/qwen3.8-27b",
+            reasoning_effort="none",
+            max_tokens=600,
         ).choices[0].message.content
 
 
